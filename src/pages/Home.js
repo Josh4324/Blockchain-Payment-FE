@@ -218,11 +218,11 @@ export default function Home() {
       const { ethereum } = window;
 
       if (ethereum) {
-        const accounts = await ethereum.request({ method: "eth_accounts" });
-        setAddress(accounts[0]);
         // Get the provider from web3Modal, which in our case is MetaMask
         // When used for the first time, it prompts the user to connect their wallet
         await getProviderOrSigner();
+        const accounts = await ethereum.request({ method: "eth_accounts" });
+        setAddress(accounts[0]);
         const provider2 = await getProviderOrSigner();
         const bal = await provider2.getBalance(accounts[0]);
 
