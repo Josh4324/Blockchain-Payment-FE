@@ -111,11 +111,11 @@ export default function Home() {
         signer
       );
 
-      const address = walletRef.current.value;
+      const walletAddress = walletRef.current.value;
       const ethAmount = etherRef.current.value;
 
       try {
-        const Txn = await paymentContract.sendPayment(address, {
+        const Txn = await paymentContract.sendPayment(walletAddress, {
           gasLimit: 300000,
           value: ethers.utils.parseEther(ethAmount),
         });
@@ -124,6 +124,10 @@ export default function Home() {
 
         setLoading(false);
         setMessage("Payment was successful");
+        const prov = await getProviderOrSigner();
+        const bal = await prov.getBalance(address);
+        setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
+
         walletRef.current.value = "";
         etherRef.current.value = "";
       } catch (error) {
@@ -186,6 +190,10 @@ export default function Home() {
 
         setLoading1(false);
         setMessage1("Payment was successful");
+        const prov = await getProviderOrSigner();
+        const bal = await prov.getBalance(address);
+        setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
+
         walletRef.current.value = "";
         etherRef.current.value = "";
       } catch (error) {
