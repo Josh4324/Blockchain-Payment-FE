@@ -4,6 +4,7 @@ import abi from "../utils/payment.json";
 import Web3Modal from "web3modal";
 import { providers } from "ethers";
 import WalletConnectProvider from "@walletconnect/web3-provider";
+import axios from "axios";
 
 export default function Home() {
   const contractAddress = "0x62e2c7165Df60B3D079cAADfA11B769ea9CcB28E";
@@ -16,6 +17,8 @@ export default function Home() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [balance, setBalance] = useState();
+  const [contractBalance, setContractBalance] = useState();
+  const [price, setPrice] = useState();
 
   const [loading1, setLoading1] = useState(false);
   const [error1, setError1] = useState("");
@@ -217,6 +220,39 @@ export default function Home() {
     }
   };
 
+  const getPrice = async () => {
+    const data = await axios.get(
+      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
+    );
+
+    setPrice(data.data.ethereum.usd);
+  };
+
+  const getBalance = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (ethereum) {
+        //setLoading(true);
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+
+        const paymentContract = new ethers.Contract(
+          contractAddress,
+          contractABI,
+          signer
+        );
+
+        const contractBalance = await paymentContract.getBalance();
+        setContractBalance(Number(BigNumber.from(contractBalance)) / 10 ** 18);
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const web3ModalRef = useRef();
   let provider;
   let web3Modal;
@@ -299,11 +335,22 @@ export default function Home() {
     // if wallet is not connected, create a new instance of Web3Modal and connect the MetaMask wallet
   }, [address]);
 
+  useEffect(() => {
+    getBalance();
+    getPrice();
+  }, []);
+
   return (
-    <div>
+    <div
+      className="bd"
+      style={{
+        backgroundImage: `url("./images/pay.jpg")`,
+        backgroundSize: "cover",
+      }}
+    >
       <div
         style={{
-          marginTop: "100px",
+          marginTop: "50px",
           width: "200px",
           marginLeft: "auto",
           marginRight: "auto",
@@ -315,13 +362,24 @@ export default function Home() {
             <button className="button" onClick={disconnectWallet}>
               {address.slice(0, 5) + "....." + address.slice(-5)}
             </button>
-            <div>Balance {balance}</div>
           </div>
         ) : (
           <button className="button" onClick={connectWallet}>
             Connect Wallet
           </button>
         )}
+      </div>
+
+      <div className="balance">
+        <div>
+          Balance <div>{balance} ether</div>
+          <div>${(balance * price).toFixed(2)}</div>
+        </div>
+
+        <div>
+          Contract balance <div>{contractBalance} ether</div>
+          <div>${(contractBalance * price).toFixed(2)}</div>
+        </div>
       </div>
 
       <div className="box">
