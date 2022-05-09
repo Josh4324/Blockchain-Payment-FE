@@ -143,10 +143,6 @@ export default function Home() {
   const sendEthToContract = async () => {
     setError1("");
     setMessage1("");
-    const { ethereum } = window;
-    if (!ethereum) {
-      return alert("Get MetaMask!");
-    }
 
     if (etherAmountRef.current.value === "") {
       return setError1("Please enter matic amount");
@@ -212,24 +208,18 @@ export default function Home() {
 
   const getBalance = async () => {
     try {
-      const { ethereum } = window;
+      //setLoading(true);
+      provider = await getProviderOrSigner();
+      const signer = provider.getSigner();
 
-      if (ethereum) {
-        //setLoading(true);
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
+      const paymentContract = new ethers.Contract(
+        contractAddress,
+        contractABI,
+        signer
+      );
 
-        const paymentContract = new ethers.Contract(
-          contractAddress,
-          contractABI,
-          signer
-        );
-
-        const contractBalance = await paymentContract.getBalance();
-        setContractBalance(Number(BigNumber.from(contractBalance)) / 10 ** 18);
-      } else {
-        console.log("Ethereum object doesn't exist!");
-      }
+      const contractBalance = await paymentContract.getBalance();
+      setContractBalance(Number(BigNumber.from(contractBalance)) / 10 ** 18);
     } catch (error) {
       console.log(error);
     }
