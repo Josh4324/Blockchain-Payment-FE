@@ -88,11 +88,11 @@ export default function Home() {
     }
 
     if (etherRef.current.value === "") {
-      return setError("Please enter ether amount");
+      return setError("Please enter bnb amount");
     }
 
     if (etherRef.current.value <= 0) {
-      return setError("You cant send zero or less than zero ethers");
+      return setError("You cant send zero or less than zero bnb");
     }
 
     setLoading(true);
@@ -146,11 +146,11 @@ export default function Home() {
     setMessage1("");
 
     if (etherAmountRef.current.value === "") {
-      return setError1("Please enter ether amount");
+      return setError1("Please enter bnb amount");
     }
 
     if (etherAmountRef.current.value <= 0) {
-      return setError1("You cant send zero or less than zero ethers");
+      return setError1("You cant send zero or less than zero bnb");
     }
 
     setLoading1(true);
