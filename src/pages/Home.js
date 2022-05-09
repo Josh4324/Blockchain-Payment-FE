@@ -7,7 +7,7 @@ import axios from "axios";
 import Web3 from "web3";
 
 export default function Home() {
-  const contractAddress = "0x0f9ae0b2A73F0812010B9f96EE0767fC5d84e5d3";
+  const contractAddress = "0xdC16A298b7562DECb67A026a3a9D4c254913e65A";
 
   const contractABI = abi.abi;
   const [loading, setLoading] = useState(false);
@@ -60,9 +60,9 @@ export default function Home() {
     // rinkbey - 4
     // bsc - 97
     // polygon - 80001
-    if (chainId !== 97) {
-      window.alert("Change the network to BSC Testnet");
-      throw new Error("Change network to BSC Testnet");
+    if (chainId !== 80001) {
+      window.alert("Change the network to Polygon Mumbai Testnet");
+      throw new Error("Change network to Polygon Mumbai Testnet");
     }
 
     if (needSigner) {
@@ -75,10 +75,6 @@ export default function Home() {
   const sendEthToAnotherAddr = async () => {
     setError("");
     setMessage("");
-    const { ethereum } = window;
-    if (!ethereum) {
-      return alert("Get MetaMask!");
-    }
 
     if (walletRef.current.value === "") {
       return setError("Please enter your wallet address");
@@ -92,61 +88,55 @@ export default function Home() {
     }
 
     if (etherRef.current.value === "") {
-      return setError("Please enter ether amount");
+      return setError("Please enter matic amount");
     }
 
     if (etherRef.current.value <= 0) {
-      return setError("You cant send zero or less than zero ethers");
+      return setError("You cant send zero or less than zero matic");
     }
 
-    if (ethereum) {
-      setLoading(true);
-      const provider = new ethers.providers.Web3Provider(ethereum);
-      const signer = provider.getSigner();
+    setLoading(true);
+    const provider = await getProviderOrSigner();
+    const signer = provider.getSigner();
 
-      const paymentContract = new ethers.Contract(
-        contractAddress,
-        contractABI,
-        signer
-      );
+    const paymentContract = new ethers.Contract(
+      contractAddress,
+      contractABI,
+      signer
+    );
 
-      const walletAddress = walletRef.current.value;
-      const ethAmount = etherRef.current.value;
+    const walletAddress = walletRef.current.value;
+    const ethAmount = etherRef.current.value;
 
-      try {
-        const Txn = await paymentContract.sendPayment(walletAddress, {
-          gasLimit: 300000,
-          value: ethers.utils.parseEther(ethAmount),
-        });
+    try {
+      const Txn = await paymentContract.sendPayment(walletAddress, {
+        gasLimit: 300000,
+        value: ethers.utils.parseEther(ethAmount),
+      });
 
-        await Txn.wait();
+      await Txn.wait();
 
-        setLoading(false);
-        setMessage("Payment was successful");
-        const prov = await getProviderOrSigner();
-        const bal = await prov.getBalance(address);
-        setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
-
-        walletRef.current.value = "";
-        etherRef.current.value = "";
-      } catch (error) {
-        if (error.code) {
-          console.log(error.toString);
-          setError(error.message);
-        } else {
-          setError(error.toString());
-          console.log(error.toString());
-        }
-
-        setLoading(false);
-
-        walletRef.current.value = "";
-        etherRef.current.value = "";
-      }
-    } else {
       setLoading(false);
-      window.alert("Please connect to metamask");
-      console.log("Ethereum object doesn't exist!");
+      setMessage("Payment was successful");
+      const prov = await getProviderOrSigner();
+      const bal = await prov.getBalance(address);
+      setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
+
+      walletRef.current.value = "";
+      etherRef.current.value = "";
+    } catch (error) {
+      if (error.code) {
+        console.log(error.toString);
+        setError(error.message);
+      } else {
+        setError(error.toString());
+        console.log(error.toString());
+      }
+
+      setLoading(false);
+
+      walletRef.current.value = "";
+      etherRef.current.value = "";
     }
   };
 
@@ -159,71 +149,65 @@ export default function Home() {
     }
 
     if (etherAmountRef.current.value === "") {
-      return setError1("Please enter ether amount");
+      return setError1("Please enter matic amount");
     }
 
     if (etherAmountRef.current.value <= 0) {
-      return setError1("You cant send zero or less than zero ethers");
+      return setError1("You cant send zero or less than zero matic");
     }
 
-    if (ethereum) {
-      setLoading1(true);
-      const provider = new ethers.providers.Web3Provider(ethereum);
-      const signer = provider.getSigner();
+    setLoading1(true);
+    provider = await getProviderOrSigner();
+    const signer = provider.getSigner();
 
-      const paymentContract = new ethers.Contract(
-        contractAddress,
-        contractABI,
-        signer
-      );
+    const paymentContract = new ethers.Contract(
+      contractAddress,
+      contractABI,
+      signer
+    );
 
-      const ethAmount = etherAmountRef.current.value;
+    const ethAmount = etherAmountRef.current.value;
 
-      try {
-        const Txn = await paymentContract.sendToContract({
-          gasLimit: 300000,
-          value: ethers.utils.parseEther(ethAmount),
-        });
+    try {
+      const Txn = await paymentContract.sendToContract({
+        gasLimit: 300000,
+        value: ethers.utils.parseEther(ethAmount),
+      });
 
-        await Txn.wait();
+      await Txn.wait();
 
-        setLoading1(false);
-        setMessage1("Payment was successful");
-        const prov = await getProviderOrSigner();
-        const bal = await prov.getBalance(address);
-        setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
-
-        walletRef.current.value = "";
-        etherRef.current.value = "";
-      } catch (error) {
-        if (error.code) {
-          console.log(error.toString);
-          setError1(error.message);
-        } else {
-          setError1(error.toString());
-          console.log(error.toString());
-        }
-
-        setLoading1(false);
-
-        walletRef.current.value = "";
-        etherRef.current.value = "";
-      }
-    } else {
       setLoading1(false);
-      window.alert("Please connect to metamask");
-      console.log("Ethereum object doesn't exist!");
+      setMessage1("Payment was successful");
+      const prov = await getProviderOrSigner();
+      const bal = await prov.getBalance(address);
+      setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
+
+      walletRef.current.value = "";
+      etherRef.current.value = "";
+    } catch (error) {
+      if (error.code) {
+        console.log(error.toString);
+        setError1(error.message);
+      } else {
+        setError1(error.toString());
+        console.log(error.toString());
+      }
+
+      setLoading1(false);
+
+      walletRef.current.value = "";
+      etherRef.current.value = "";
     }
   };
 
   const getPrice = async () => {
     const data = await axios.get(
-      "https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=matic-network&vs_currencies=usd"
     );
 
     console.log(data);
 
-    setPrice(data.data.binancecoin.usd);
+    setPrice(data.data["matic-network"].usd);
   };
 
   const getBalance = async () => {
@@ -362,24 +346,24 @@ export default function Home() {
 
       <div className="balance">
         <div>
-          Balance <div>{balance.toFixed(4)} bnb</div>
+          Balance <div>{balance.toFixed(4)} matic</div>
           <div>${(balance * price).toFixed(2)}</div>
         </div>
 
         <div>
-          Contract balance <div>{contractBalance} bnb</div>
+          Contract balance <div>{contractBalance} matic</div>
           <div>${(contractBalance * price).toFixed(2)}</div>
         </div>
       </div>
 
       <div className="box">
         <div className="inner__box">
-          <div className="text">Send BNB to Another Wallet Address</div>
+          <div className="text">Send MATIC to Another Wallet Address</div>
           <div>
             <input
               className="input"
               ref={etherRef}
-              placeholder="Enter amount in bnb"
+              placeholder="Enter amount in matic"
             />
           </div>
           <div>
@@ -404,12 +388,12 @@ export default function Home() {
         </div>
 
         <div className="inner__box">
-          <div className="text">Send BNB to Contract</div>
+          <div className="text">Send MATIC to Contract</div>
           <div>
             <input
               ref={etherAmountRef}
               className="input"
-              placeholder="Enter amount in bnb"
+              placeholder="Enter amount in matic"
             />
           </div>
           <div style={{ color: "blue", padding: "5px" }}>
