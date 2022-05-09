@@ -60,9 +60,9 @@ export default function Home() {
     // rinkbey - 4
     // bsc - 97
     // polygon - 80001
-    if (chainId !== 4) {
-      window.alert("Change the network to Rinkeby");
-      throw new Error("Change network to Rinkeby");
+    if (chainId !== 97) {
+      window.alert("Change the network to BSC Testnet");
+      throw new Error("Change network to BSC Testnet");
     }
 
     if (needSigner) {
@@ -218,10 +218,12 @@ export default function Home() {
 
   const getPrice = async () => {
     const data = await axios.get(
-      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd"
     );
 
-    setPrice(data.data.ethereum.usd);
+    console.log(data);
+
+    setPrice(data.data.binancecoin.usd);
   };
 
   const getBalance = async () => {
@@ -360,24 +362,24 @@ export default function Home() {
 
       <div className="balance">
         <div>
-          Balance <div>{balance.toFixed(4)} ether</div>
+          Balance <div>{balance.toFixed(4)} bnb</div>
           <div>${(balance * price).toFixed(2)}</div>
         </div>
 
         <div>
-          Contract balance <div>{contractBalance} ether</div>
+          Contract balance <div>{contractBalance} bnb</div>
           <div>${(contractBalance * price).toFixed(2)}</div>
         </div>
       </div>
 
       <div className="box">
         <div className="inner__box">
-          <div className="text">Send Ether to Another Wallet Address</div>
+          <div className="text">Send BNB to Another Wallet Address</div>
           <div>
             <input
               className="input"
               ref={etherRef}
-              placeholder="Enter amount in ether"
+              placeholder="Enter amount in bnb"
             />
           </div>
           <div>
@@ -393,7 +395,7 @@ export default function Home() {
           <div style={{ color: "red", padding: "5px" }}>
             {error.length > 0 ? error : ""}
           </div>
-          <div style={{ color: "cyan", padding: "5px" }}>
+          <div style={{ color: "blue", padding: "5px" }}>
             {message.length > 0 ? message : ""}
           </div>
           <button onClick={sendEthToAnotherAddr} className="button">
@@ -402,12 +404,12 @@ export default function Home() {
         </div>
 
         <div className="inner__box">
-          <div className="text">Send Ether to Contract</div>
+          <div className="text">Send BNB to Contract</div>
           <div>
             <input
               ref={etherAmountRef}
               className="input"
-              placeholder="Enter amount in ether"
+              placeholder="Enter amount in bnb"
             />
           </div>
           <div style={{ color: "blue", padding: "5px" }}>
@@ -416,7 +418,7 @@ export default function Home() {
           <div style={{ color: "red", padding: "5px" }}>
             {error1.length > 0 ? error1 : ""}
           </div>
-          <div style={{ color: "cyan", padding: "5px" }}>
+          <div style={{ color: "blue", padding: "5px" }}>
             {message1.length > 0 ? message1 : ""}
           </div>
           <button onClick={sendEthToContract} className="button">
