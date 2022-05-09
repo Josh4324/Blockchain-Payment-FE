@@ -7,7 +7,7 @@ import axios from "axios";
 import Web3 from "web3";
 
 export default function Home() {
-  const contractAddress = "0x0f9ae0b2A73F0812010B9f96EE0767fC5d84e5d3";
+  const contractAddress = "0xE68C05dD79bF80f958AD4D453142b9Ad099b825B";
 
   const contractABI = abi.abi;
   const [loading, setLoading] = useState(false);
@@ -75,10 +75,6 @@ export default function Home() {
   const sendEthToAnotherAddr = async () => {
     setError("");
     setMessage("");
-    const { ethereum } = window;
-    if (!ethereum) {
-      return alert("Get MetaMask!");
-    }
 
     if (walletRef.current.value === "") {
       return setError("Please enter your wallet address");
@@ -99,64 +95,55 @@ export default function Home() {
       return setError("You cant send zero or less than zero ethers");
     }
 
-    if (ethereum) {
-      setLoading(true);
-      const provider = new ethers.providers.Web3Provider(ethereum);
-      const signer = provider.getSigner();
+    setLoading(true);
 
-      const paymentContract = new ethers.Contract(
-        contractAddress,
-        contractABI,
-        signer
-      );
+    const provider = await getProviderOrSigner();
+    const signer = provider.getSigner();
 
-      const walletAddress = walletRef.current.value;
-      const ethAmount = etherRef.current.value;
+    const paymentContract = new ethers.Contract(
+      contractAddress,
+      contractABI,
+      signer
+    );
 
-      try {
-        const Txn = await paymentContract.sendPayment(walletAddress, {
-          gasLimit: 300000,
-          value: ethers.utils.parseEther(ethAmount),
-        });
+    const walletAddress = walletRef.current.value;
+    const ethAmount = etherRef.current.value;
 
-        await Txn.wait();
+    try {
+      const Txn = await paymentContract.sendPayment(walletAddress, {
+        gasLimit: 300000,
+        value: ethers.utils.parseEther(ethAmount),
+      });
 
-        setLoading(false);
-        setMessage("Payment was successful");
-        const prov = await getProviderOrSigner();
-        const bal = await prov.getBalance(address);
-        setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
+      await Txn.wait();
 
-        walletRef.current.value = "";
-        etherRef.current.value = "";
-      } catch (error) {
-        if (error.code) {
-          console.log(error.toString);
-          setError(error.message);
-        } else {
-          setError(error.toString());
-          console.log(error.toString());
-        }
-
-        setLoading(false);
-
-        walletRef.current.value = "";
-        etherRef.current.value = "";
-      }
-    } else {
       setLoading(false);
-      window.alert("Please connect to metamask");
-      console.log("Ethereum object doesn't exist!");
+      setMessage("Payment was successful");
+      const prov = await getProviderOrSigner();
+      const bal = await prov.getBalance(address);
+      setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
+
+      walletRef.current.value = "";
+      etherRef.current.value = "";
+    } catch (error) {
+      if (error.code) {
+        console.log(error.toString);
+        setError(error.message);
+      } else {
+        setError(error.toString());
+        console.log(error.toString());
+      }
+
+      setLoading(false);
+
+      walletRef.current.value = "";
+      etherRef.current.value = "";
     }
   };
 
   const sendEthToContract = async () => {
     setError1("");
     setMessage1("");
-    const { ethereum } = window;
-    if (!ethereum) {
-      return alert("Get MetaMask!");
-    }
 
     if (etherAmountRef.current.value === "") {
       return setError1("Please enter ether amount");
@@ -166,53 +153,46 @@ export default function Home() {
       return setError1("You cant send zero or less than zero ethers");
     }
 
-    if (ethereum) {
-      setLoading1(true);
-      const provider = new ethers.providers.Web3Provider(ethereum);
-      const signer = provider.getSigner();
+    setLoading1(true);
+    const provider = await getProviderOrSigner();
+    const signer = provider.getSigner();
 
-      const paymentContract = new ethers.Contract(
-        contractAddress,
-        contractABI,
-        signer
-      );
+    const paymentContract = new ethers.Contract(
+      contractAddress,
+      contractABI,
+      signer
+    );
 
-      const ethAmount = etherAmountRef.current.value;
+    const ethAmount = etherAmountRef.current.value;
 
-      try {
-        const Txn = await paymentContract.sendToContract({
-          gasLimit: 300000,
-          value: ethers.utils.parseEther(ethAmount),
-        });
+    try {
+      const Txn = await paymentContract.sendToContract({
+        gasLimit: 300000,
+        value: ethers.utils.parseEther(ethAmount),
+      });
 
-        await Txn.wait();
+      await Txn.wait();
 
-        setLoading1(false);
-        setMessage1("Payment was successful");
-        const prov = await getProviderOrSigner();
-        const bal = await prov.getBalance(address);
-        setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
-
-        walletRef.current.value = "";
-        etherRef.current.value = "";
-      } catch (error) {
-        if (error.code) {
-          console.log(error.toString);
-          setError1(error.message);
-        } else {
-          setError1(error.toString());
-          console.log(error.toString());
-        }
-
-        setLoading1(false);
-
-        walletRef.current.value = "";
-        etherRef.current.value = "";
-      }
-    } else {
       setLoading1(false);
-      window.alert("Please connect to metamask");
-      console.log("Ethereum object doesn't exist!");
+      setMessage1("Payment was successful");
+      const bal = await provider.getBalance(address);
+      setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
+
+      walletRef.current.value = "";
+      etherRef.current.value = "";
+    } catch (error) {
+      if (error.code) {
+        console.log(error.toString);
+        setError1(error.message);
+      } else {
+        setError1(error.toString());
+        console.log(error.toString());
+      }
+
+      setLoading1(false);
+
+      walletRef.current.value = "";
+      etherRef.current.value = "";
     }
   };
 
@@ -226,24 +206,19 @@ export default function Home() {
 
   const getBalance = async () => {
     try {
-      const { ethereum } = window;
+      //setLoading(true);
+      const provider = await getProviderOrSigner();
+      const signer = provider.getSigner();
 
-      if (ethereum) {
-        //setLoading(true);
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
+      const paymentContract = new ethers.Contract(
+        contractAddress,
+        contractABI,
+        signer
+      );
 
-        const paymentContract = new ethers.Contract(
-          contractAddress,
-          contractABI,
-          signer
-        );
+      const contractBalance = await paymentContract.getBalance();
 
-        const contractBalance = await paymentContract.getBalance();
-        setContractBalance(Number(BigNumber.from(contractBalance)) / 10 ** 18);
-      } else {
-        console.log("Ethereum object doesn't exist!");
-      }
+      setContractBalance(Number(BigNumber.from(contractBalance)) / 10 ** 18);
     } catch (error) {
       console.log(error);
     }
@@ -270,6 +245,7 @@ export default function Home() {
       provider.on("accountsChanged", async (accounts) => {
         const provider = await getProviderOrSigner();
         const bal = await provider.getBalance(accounts[0]);
+        setAddress(accounts[0]);
         setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
       });
 
@@ -316,10 +292,9 @@ export default function Home() {
       });
 
       connectWallet();
-
-      setBalance(0);
     }
 
+    setBalance(0);
     // if wallet is not connected, create a new instance of Web3Modal and connect the MetaMask wallet
   }, [address]);
 
@@ -393,7 +368,7 @@ export default function Home() {
           <div style={{ color: "red", padding: "5px" }}>
             {error.length > 0 ? error : ""}
           </div>
-          <div style={{ color: "cyan", padding: "5px" }}>
+          <div style={{ color: "blue", padding: "5px" }}>
             {message.length > 0 ? message : ""}
           </div>
           <button onClick={sendEthToAnotherAddr} className="button">
@@ -416,7 +391,7 @@ export default function Home() {
           <div style={{ color: "red", padding: "5px" }}>
             {error1.length > 0 ? error1 : ""}
           </div>
-          <div style={{ color: "cyan", padding: "5px" }}>
+          <div style={{ color: "blue", padding: "5px" }}>
             {message1.length > 0 ? message1 : ""}
           </div>
           <button onClick={sendEthToContract} className="button">
