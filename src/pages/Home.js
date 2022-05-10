@@ -245,9 +245,14 @@ export default function Home() {
 
       // Subscribe to accounts change
       provider.on("accountsChanged", async (accounts) => {
-        const provider = await getProviderOrSigner();
-        const bal = await provider.getBalance(accounts[0]);
-        setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
+        if (accounts[0]) {
+          const provider = new ethers.providers.JsonRpcProvider(
+            "https://speedy-nodes-nyc.moralis.io/40a88f8745bc01d3bb660792/polygon/mumbai"
+          );
+          const bal = await provider.getBalance(accounts[0]);
+          setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
+          setAddress(accounts[0]);
+        }
       });
 
       // Subscribe to chainId change
