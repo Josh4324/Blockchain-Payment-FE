@@ -201,21 +201,20 @@ export default function Home() {
       "https://api.coingecko.com/api/v3/simple/price?ids=matic-network&vs_currencies=usd"
     );
 
-    console.log(data);
-
     setPrice(data.data["matic-network"].usd);
   };
 
   const getBalance = async () => {
     try {
       //setLoading(true);
-      provider = await getProviderOrSigner();
-      const signer = provider.getSigner();
+      const provider = new ethers.providers.JsonRpcProvider(
+        "https://speedy-nodes-nyc.moralis.io/40a88f8745bc01d3bb660792/polygon/mumbai"
+      );
 
       const paymentContract = new ethers.Contract(
         contractAddress,
         contractABI,
-        signer
+        provider
       );
 
       const contractBalance = await paymentContract.getBalance();
@@ -236,6 +235,8 @@ export default function Home() {
       setAddress(accounts[0]);
 
       const bal = await prov.getBalance(accounts[0]);
+
+      console.log(balance);
 
       setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
 
@@ -292,9 +293,9 @@ export default function Home() {
       });
 
       connectWallet();
-
-      setBalance(0);
     }
+
+    setBalance(0);
 
     // if wallet is not connected, create a new instance of Web3Modal and connect the MetaMask wallet
   }, [address]);
