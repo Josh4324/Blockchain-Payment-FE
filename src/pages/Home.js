@@ -207,13 +207,14 @@ export default function Home() {
 
   const getBalance = async () => {
     try {
-      const provider = await getProviderOrSigner();
-      const signer = provider.getSigner();
+      const provider = new ethers.providers.JsonRpcProvider(
+        "https://data-seed-prebsc-1-s1.binance.org:8545"
+      );
 
       const paymentContract = new ethers.Contract(
         contractAddress,
         contractABI,
-        signer
+        provider
       );
 
       const contractBalance = await paymentContract.getBalance();
@@ -242,9 +243,14 @@ export default function Home() {
 
       // Subscribe to accounts change
       provider.on("accountsChanged", async (accounts) => {
-        const provider = await getProviderOrSigner();
-        const bal = await provider.getBalance(accounts[0]);
-        setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
+        if (accounts[0]) {
+          const provider = new ethers.providers.JsonRpcProvider(
+            "https://data-seed-prebsc-1-s1.binance.org:8545"
+          );
+          const bal = await provider.getBalance(accounts[0]);
+          setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
+          setAddress(accounts[0]);
+        }
       });
 
       // Subscribe to chainId change
