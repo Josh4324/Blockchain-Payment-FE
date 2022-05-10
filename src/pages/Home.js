@@ -207,13 +207,14 @@ export default function Home() {
   const getBalance = async () => {
     try {
       //setLoading(true);
-      const provider = await getProviderOrSigner();
-      const signer = provider.getSigner();
+      const provider = new ethers.providers.JsonRpcProvider(
+        "https://eth-rinkeby.alchemyapi.io/v2/0mjCfRXMhCmlg6NpHLkztqcvtEbqG9__"
+      );
 
       const paymentContract = new ethers.Contract(
         contractAddress,
         contractABI,
-        signer
+        provider
       );
 
       const contractBalance = await paymentContract.getBalance();
@@ -243,10 +244,14 @@ export default function Home() {
 
       // Subscribe to accounts change
       provider.on("accountsChanged", async (accounts) => {
-        const provider = await getProviderOrSigner();
-        const bal = await provider.getBalance(accounts[0]);
-        setAddress(accounts[0]);
-        setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
+        if (accounts[0]) {
+          const provider = new ethers.providers.JsonRpcProvider(
+            "https://eth-rinkeby.alchemyapi.io/v2/0mjCfRXMhCmlg6NpHLkztqcvtEbqG9__"
+          );
+          const bal = await provider.getBalance(accounts[0]);
+          setAddress(accounts[0]);
+          setBalance(Number(BigNumber.from(bal)) / 10 ** 18);
+        }
       });
 
       // Subscribe to chainId change
